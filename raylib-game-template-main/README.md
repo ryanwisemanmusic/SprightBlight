@@ -28,7 +28,7 @@ Chose one of the follow setup, that fit in you development enviroment.
         - `raylib-game-template`
             - this `README.md` and all other raylib-game-template files
 - If using Visual Studio, open projects/VS2022/raylib-game-template.sln
-- Select on `raylib_game` in the solution explorer, then in the toolbar at the top, click `Project` > `Set as Startup Project`
+- Select on `sprightblight` in the solution explorer, then in the toolbar at the top, click `Project` > `Set as Startup Project`
 - Now you're all set up!  Click `Local Windows Debugger` with the green play arrow and the project will run.
 
 ### CMake
