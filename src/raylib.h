@@ -167,6 +167,12 @@
 // Some Basic Colors
 /*Ryan Wiseman's Custom Palette*/
 #define PASTELPINK CLITERAL(Color){ 255, 209, 220, 255 }   //Pastel Pink
+#define COLDPURPLE CLITERAL(Color){ 156, 137, 184, 255 }   //Cold Purple
+#define C_GRELLO_01 CLITERAL(Color){ 201, 203, 163, 255 }  //Green Yellow
+#define C_CREAM_01 CLITERAL(Color){ 225, 225, 168, 255 }   //Cream
+#define C_RED_01 CLITERAL(Color) { 226, 109, 92, 255 }     //Red
+#define C_PURPLE_01 CLITERAL(Color) { 114, 61, 70, 255 }   //Purple
+#define C_PURPLE_02 CLITERAL(Color) { 71, 45, 48, 255 }    //Purple
 
 // NOTE: Custom raylib color palette for amazing visuals on WHITE background
 #define LIGHTGRAY  CLITERAL(Color){ 200, 200, 200, 255 }   // Light Gray
