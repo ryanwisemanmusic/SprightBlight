@@ -11,52 +11,32 @@
 #include "raylib.h"
 #include "screens.h"
 
-//----------------------------------------------------------------------------------
-// Module Variables Definition (local)
-//----------------------------------------------------------------------------------
+/*Global Variables*/
+#define MAX_BUILDINGS 100
+
+//constant integers
+const int screenWidth = 1700;
+const int screenHeight = 1000;
 static int framesCounter = 0;
 static int finishScreen = 0;
 
-//----------------------------------------------------------------------------------
-// Gameplay Screen Functions Definition
-//----------------------------------------------------------------------------------
+
+//Bool Flags
+bool CheckPoint_1 = false;
+bool GameComplete = false;
+// Updated player y position to keep it more centered vertically.
+
+//Struct definitions
+Rectangle player = { 400, 830, 40, 40 }; 
+Rectangle buildings[MAX_BUILDINGS] = { 0 };
+Color buildColors[MAX_BUILDINGS] = { 0 };
+Camera2D camera = { 0 };
+
+int spacing = 0;
 
 // Gameplay Screen Initialization logic
 void InitGameplayScreen(void)
 {
-    // TODO: Initialize GAMEPLAY screen variables here!
-    framesCounter = 0;
-    finishScreen = 0;
-}
-
-// Gameplay Screen Update logic
-void UpdateGameplayScreen(void)
-{
-    // Press enter or tap to change to ENDING screen
-    if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
-    {
-
-        finishScreen = 1;
-        PlaySound(fxCoin);
-    }
-    
-}
-
-/*Gameplay Section, where we do all our gameplay elements!*/
-void DrawGameplayScreen(void)
-{
-    #define MAX_BUILDINGS 100
-    // TODO: Update GAMEPLAY screen variables here!
-    bool CheckPoint_1 = false;
-    bool GameComplete = false;
-    Rectangle player = { 400, 500, 40, 40 }; // Updated player y position to keep it more centered vertically.
-    Rectangle buildings[MAX_BUILDINGS] = { 0 };
-    Color buildColors[MAX_BUILDINGS] = { 0 };
-    const int screenWidth = 1700;
-    const int screenHeight = 1000;
-    
-    int spacing = 0;
-
     for (int i = 0; i < MAX_BUILDINGS; i++)
     {
         buildings[i].width = (float)GetRandomValue(50, 200);
@@ -69,23 +49,76 @@ void DrawGameplayScreen(void)
         buildColors[i] = (Color){ GetRandomValue(200, 240), 
         GetRandomValue(200, 240), GetRandomValue(200, 250), 255 };
     }
+    // TODO: Initialize GAMEPLAY screen variables here!
+    framesCounter = 0;
+    finishScreen = 0;
+}
 
+// Gameplay Screen Update logic
+void UpdateGameplayScreen(void)
+{
+    // Press enter or tap to change to ENDING screen
+    if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
+    {
+        if (GameComplete == true)
+        {
+            finishScreen = 1;
+            PlaySound(fxCoin);
+        }
+        else
+        {
+
+        }
+    }
+
+    if (IsKeyDown(KEY_RIGHT)) player.x += 2;
+        else if (IsKeyDown(KEY_LEFT)) player.x -= 2;
+
+        // Camera target follows player
+        camera.target = (Vector2){ player.x + 20, player.y + 20 };
+
+        // Camera rotation controls
+        if (IsKeyDown(KEY_A)) camera.rotation--;
+        else if (IsKeyDown(KEY_S)) camera.rotation++;
+
+        // Limit camera rotation to 80 degrees (-40 to 40)
+        if (camera.rotation > 40) camera.rotation = 40;
+        else if (camera.rotation < -40) camera.rotation = -40;
+
+        // Camera zoom controls
+        camera.zoom += ((float)GetMouseWheelMove()*0.05f);
+
+        if (camera.zoom > 3.0f) camera.zoom = 3.0f;
+        else if (camera.zoom < 0.1f) camera.zoom = 0.1f;
+
+        // Camera reset (zoom and rotation)
+        if (IsKeyPressed(KEY_R))
+        {
+            camera.zoom = 1.0f;
+            camera.rotation = 0.0f;
+        }
+    
+}
+
+/*Gameplay Section, where we do all our gameplay elements!*/
+void DrawGameplayScreen(void)
+{
     /*This sets the bounds of the camera.*/
     Camera2D camera = { 0 };
     camera.target = (Vector2)
     {
-        player.x + 400.0f, player.y + 300.0f // Updated to center camera closer to the player.
+        player.x - 50.0f, player.y - 300.0f
     };
     camera.offset = (Vector2)
     {
         screenWidth / 2.0f, screenHeight / 2.0f
     };
     camera.rotation = 0.0f;
-    camera.zoom = 0.8f; // Reduced zoom to have a better view of objects.
+    camera.zoom = 0.8f; 
 
     BeginMode2D(camera);
 
-    DrawRectangle(-6000, screenHeight - 130, 13000, 800, DARKGRAY); // Adjusted y position and height for visibility.
+    DrawRectangle(-6000, screenHeight - 130, 13000, 800, DARKGRAY);
 
     for (int i = 0; i < MAX_BUILDINGS; i++)
         DrawRectangleRec(buildings[i], buildColors[i]);
@@ -97,7 +130,7 @@ void DrawGameplayScreen(void)
     DrawLine(-screenWidth * 10, (int)camera.target.y, 
              screenWidth * 10, (int)camera.target.y, GREEN);
 
-    DrawText("SCREEN AREA", 20, 10, 20, RED); // Moved text to a visible location.
+    DrawText("SCREEN AREA", 20, 10, 20, RED);
 
     DrawRectangle(0, 0, 20, 5, RED);
     DrawRectangle(0, 5, 5, 20 - 10, RED);
@@ -121,7 +154,6 @@ void DrawGameplayScreen(void)
 
     EndMode2D();
 }
-
 
 // Gameplay Screen Unload logic
 void UnloadGameplayScreen(void)
