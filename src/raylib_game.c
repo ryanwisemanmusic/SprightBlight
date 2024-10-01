@@ -9,8 +9,7 @@
 ************************************************************************/
 
 #include "raylib.h"
-// NOTE: Declares global (extern) variables and screens functions
-#include "screens.h"    
+#include "screens.h" 
 
 /*We include some web headers so that
 this game translates to the internet.*/
@@ -26,8 +25,9 @@ Music music = { 0 };
 Sound fxCoin = { 0 };
 
 // Local Variables Definition (local to this module)
-static const int screenWidth = 800;
-static const int screenHeight = 450;
+//----------------------------------------------------------------------------------
+static const int screenWidth = 1700;
+static const int screenHeight = 1000;
 
 // Required variables to manage screen transitions (fade-in, fade-out)
 static float transAlpha = 0.0f;
@@ -36,152 +36,249 @@ static bool transFadeOut = false;
 static int transFromScreen = -1;
 static GameScreen transToScreen = UNKNOWN;
 
-/*Local Functions Declarations are here:*/
-
+/*Any local funcitons will go here*/
 // Change to screen, no transition effect
-static void ChangeToScreen(int screen);     
+static void ChangeToScreen(int screen);  
 // Request transition to next screen
 static void TransitionToScreen(int screen); 
 // Update transition effect
-static void UpdateTransition(void);         
-// Draw transition effect (full-screen rectangle)
+static void UpdateTransition(void);   
+// Draw transition effect (full-screen rectangle)      
 static void DrawTransition(void);           
 // Update and draw one frame
-static void UpdateDrawFrame(void);         
+static void UpdateDrawFrame(void);          
 
-/*The main function*/
+/*Our main function*/
 int main(void)
 {
-    /*This draws the game to be 1700 by 1000. Currently,
-    this is the resolution I want set for editing, as
-    full screen implementation seems like a tricky ass
-    thing to do*/
-    const int screenWidth = 1700;
-    const int screenHeight = 1000;
+    //Initialize the window
+    InitWindow(screenWidth, screenHeight, "raylib game template");
+    //Initialize audio
+    InitAudioDevice();  
 
-    /*This is our basic window, which we name so if we
-    have to */
-    InitWindow(screenWidth, screenHeight, 
-    "raylib [core] example - basic window");
-    GameScreen currentScreen = LOGO;
+    /*Global Asset Storage Place. Will be modifying the program to
+    use my own audio assets.*/
+    font = LoadFont("resources/mecha.png");
+    music = LoadMusicStream("resources/ambient.ogg");
+    fxCoin = LoadSound("resources/coin.wav");
 
-    /*We initialize framesCounter to zero
-    for the sake of when we rerun said code*/
-    int framesCounter = 0;
+    /*This allows us to set the volume of our music and play it*/
+    SetMusicVolume(music, 1.0f);
+    PlayMusicStream(music);
 
+    // Setup and init first screen
+    currentScreen = LOGO;
+    InitLogoScreen();
+
+#if defined(PLATFORM_WEB)
+    emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
+#else
     SetTargetFPS(60); /*This could be done where we have
     FPS targetting based on system preference like in the 
     example of the Steam Deck*/
-    //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose()) 
     {
-        switch (currentScreen)
-        {
-        case LOGO:
-        {
-        //TODO: Logic for screen here
-
-        framesCounter++;
-
-        /*After 120 frames of the logo animation,
-        go to title*/
-            if (framesCounter > 120)
-            {
-                currentScreen = TITLE;
-            } 
-        } break;
-        
-        /*Anything we want to put in our title
-        logic goes here. This would be a great
-        place for a Title Screen menu, which'll
-        be implemented eventually*/
-        case TITLE:
-            {
-                if (IsKeyPressed(KEY_ENTER) || 
-                IsGestureDetected(GESTURE_TAP))
-                {
-                    currentScreen = GAMEPLAY;
-                }
-            } break;
-
-        /*Any of our gameplay logic will go here, which is
-        gonna be a very large function in the end.*/
-        case GAMEPLAY:
-        {
-            if (IsKeyPressed(KEY_ENTER) || 
-            IsGestureDetected(GESTURE_TAP))
-            {
-                currentScreen = ENDING;
-            }
-            
-        } break;
-
-        /*When we complete the game, this will
-        be any ending credit logic. This would
-        be great for if I were to have a huge
-        team working on the project. What we
-        will store here are any sound credits.*/
-        case ENDING:
-        {
-            if (IsKeyPressed(KEY_ENTER) ||
-            IsGestureDetected(GESTURE_TAP))
-            {
-                currentScreen = TITLE;
-            }
-            
-        } break;
-        /*Since we will never be in default, we
-        just allow this sectio to break. I 
-        could be wrong about what goes here, though*/
-        default:
-            break;
-        }
-
-        BeginDrawing();
-        
-        /*We use a switch statement to cycle through different windows.
-        This will be a good chunk of the logic needed for the codebase.*/
-        switch (currentScreen)
-        {
-        case LOGO:
-            {
-                DrawText("LOGO SCREEN", 20, 20, 40, LIGHTGRAY);
-                DrawText("Wait for 2 seconds..." , 290, 220, 20, GRAY);
-            } break;
-        case TITLE:
-        {
-            DrawRectangle(0, 0, screenWidth, screenHeight, GREEN);
-            DrawText("TITLE SCREEN", 20, 20, 40, DARKGREEN);
-            DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN",
-            120, 220, 20, DARKGREEN);
-        } break;
-        case GAMEPLAY:
-        {
-            DrawRectangle(0, 0, screenWidth, screenHeight, PINK);
-            DrawText("GAMEPLAY SCREEN", 20, 20, 40, MAGENTA);
-            DrawText("PRESS ENTER or TAP to JUMP to ENDING SCREEN",
-            120, 220, 20, DARKGREEN);
-        } break;
-        case ENDING:
-        {
-            DrawRectangle(0, 0, screenWidth, screenHeight, BLUE);
-            DrawText("ENDING SCREEN", 20, 20, 40, DARKBLUE);
-            DrawText("PRESS ENTER or TAP to RETURN to TITLE SCREEN", 
-            120, 220, 20, DARKBLUE);
-        }
-        default:
-            break;
-        }
-
-        EndDrawing();
+        UpdateDrawFrame();
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
+#endif
+    switch (currentScreen)
+    {
+        case LOGO: UnloadLogoScreen(); break;
+        case TITLE: UnloadTitleScreen(); break;
+        case GAMEPLAY: UnloadGameplayScreen(); break;
+        case ENDING: UnloadEndingScreen(); break;
+        default: break;
+    }
 
+    // Unload global data loaded
+    UnloadFont(font);
+    UnloadMusicStream(music);
+    UnloadSound(fxCoin);
+
+    /*Close audio*/
+    CloseAudioDevice();
+    /*Close Window and OpenGL use*/
+    CloseWindow();
     return 0;
+}
+
+// Module specific Functions Definition
+// Change to next screen, no transition
+static void ChangeToScreen(GameScreen screen)
+{
+    // Unload current screen
+    switch (currentScreen)
+    {
+        case LOGO: UnloadLogoScreen(); break;
+        case TITLE: UnloadTitleScreen(); break;
+        case GAMEPLAY: UnloadGameplayScreen(); break;
+        case ENDING: UnloadEndingScreen(); break;
+        default: break;
+    }
+
+    // Init next screen
+    switch (screen)
+    {
+        case LOGO: InitLogoScreen(); break;
+        case TITLE: InitTitleScreen(); break;
+        case GAMEPLAY: InitGameplayScreen(); break;
+        case ENDING: InitEndingScreen(); break;
+        default: break;
+    }
+
+    currentScreen = screen;
+}
+
+// Request transition to next screen
+static void TransitionToScreen(GameScreen screen)
+{
+    onTransition = true;
+    transFadeOut = false;
+    transFromScreen = currentScreen;
+    transToScreen = screen;
+    transAlpha = 0.0f;
+}
+
+// Update transition effect (fade-in, fade-out)
+static void UpdateTransition(void)
+{
+    if (!transFadeOut)
+    {
+        transAlpha += 0.05f;
+
+        /*NOTE: Due to float internal representation, 
+        condition jumps on 1.0f instead of 1.05f*/
+        /*For that reason we compare against 1.01f, 
+        to avoid last frame loading stop*/ 
+        if (transAlpha > 1.01f)
+        {
+            transAlpha = 1.0f;
+
+            // Unload current screen
+            switch (transFromScreen)
+            {
+                case LOGO: UnloadLogoScreen(); break;
+                case TITLE: UnloadTitleScreen(); break;
+                case OPTIONS: UnloadOptionsScreen(); break;
+                case GAMEPLAY: UnloadGameplayScreen(); break;
+                case ENDING: UnloadEndingScreen(); break;
+                default: break;
+            }
+
+            // Load next screen
+            switch (transToScreen)
+            {
+                case LOGO: InitLogoScreen(); break;
+                case TITLE: InitTitleScreen(); break;
+                case GAMEPLAY: InitGameplayScreen(); break;
+                case ENDING: InitEndingScreen(); break;
+                default: break;
+            }
+
+            currentScreen = transToScreen;
+
+            // Activate fade out effect to next loaded screen
+            transFadeOut = true;
+        }
+    }
+    else  // Transition fade out logic
+    {
+        transAlpha -= 0.02f;
+
+        if (transAlpha < -0.01f)
+        {
+            transAlpha = 0.0f;
+            transFadeOut = false;
+            onTransition = false;
+            transFromScreen = -1;
+            transToScreen = UNKNOWN;
+        }
+    }
+}
+
+// Draw transition effect (full-screen rectangle)
+static void DrawTransition(void)
+{
+    DrawRectangle(0, 0, GetScreenWidth(), 
+    GetScreenHeight(), Fade(BLACK, transAlpha));
+}
+
+// Update and draw game frame
+static void UpdateDrawFrame(void)
+{
+    UpdateMusicStream(music); 
+
+    if (!onTransition)
+    {
+        switch(currentScreen)
+        {
+            case LOGO:
+            {
+                UpdateLogoScreen();
+
+                if (FinishLogoScreen()) TransitionToScreen(TITLE);
+            } break;
+
+            case TITLE:
+            {
+                UpdateTitleScreen();
+
+                if (FinishTitleScreen() == 1) 
+                TransitionToScreen(OPTIONS);
+                else if (FinishTitleScreen() == 2) 
+                TransitionToScreen(GAMEPLAY);
+            } break;
+
+            case OPTIONS:
+            {
+                UpdateOptionsScreen();
+
+                if (FinishOptionsScreen()) TransitionToScreen(TITLE);
+            } break;
+
+            case GAMEPLAY:
+            {
+                UpdateGameplayScreen();
+
+                if (FinishGameplayScreen() == 1) TransitionToScreen(ENDING);
+                //else if (FinishGameplayScreen() == 2) TransitionToScreen(TITLE);
+            } break;
+
+            case ENDING:
+            {
+                UpdateEndingScreen();
+
+                if (FinishEndingScreen() == 1) TransitionToScreen(TITLE);
+
+            } break;
+            default: break;
+        }
+    }
+    // Update transition (fade-in, fade-out)
+    else UpdateTransition();    
+    
+
+    /*How we draw with the GPU*/
+    BeginDrawing();
+    ClearBackground(RAYWHITE);
+
+        switch(currentScreen)
+        {
+            case LOGO: DrawLogoScreen(); break;
+            case TITLE: DrawTitleScreen(); break;
+            case OPTIONS: DrawOptionsScreen(); break;
+            case GAMEPLAY: DrawGameplayScreen(); break;
+            case ENDING: DrawEndingScreen(); break;
+            default: break;
+        }
+
+        // Draw full screen rectangle in front of everything
+        if (onTransition) DrawTransition();
+
+        //DrawFPS(10, 10);
+
+    EndDrawing();
 }
