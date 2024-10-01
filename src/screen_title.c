@@ -43,7 +43,7 @@ void UpdateTitleScreen(void)
 void DrawTitleScreen(void)
 {
     // TODO: Draw TITLE screen here!
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), GREEN);
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), C_CREAM_01);
     Vector2 pos = { 20, 10 };
     DrawTextEx(font, "TITLE SCREEN", 
     pos, font.baseSize*8.0f, 4, DARKGREEN);
