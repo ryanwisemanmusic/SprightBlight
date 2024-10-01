@@ -47,71 +47,81 @@ void DrawGameplayScreen(void)
 {
     #define MAX_BUILDINGS 100
     // TODO: Update GAMEPLAY screen variables here!
-        const int screenWidth = 1700;
-        const int screenHeight = 1000;
+    bool CheckPoint_1 = false;
+    bool GameComplete = false;
+    Rectangle player = { 400, 500, 40, 40 }; // Updated player y position to keep it more centered vertically.
+    Rectangle buildings[MAX_BUILDINGS] = { 0 };
+    Color buildColors[MAX_BUILDINGS] = { 0 };
+    const int screenWidth = 1700;
+    const int screenHeight = 1000;
+    
+    int spacing = 0;
 
-        Rectangle player = { 400, 280, 40, 40};
-        Rectangle buildings[MAX_BUILDINGS] = { 0 };
-        Color buildColors[MAX_BUILDINGS] = { 0 };
+    for (int i = 0; i < MAX_BUILDINGS; i++)
+    {
+        buildings[i].width = (float)GetRandomValue(50, 200);
+        buildings[i].height = (float)GetRandomValue(100, 400); // Reduced height to ensure buildings are more visible.
+        buildings[i].y = screenHeight - 130.0f - buildings[i].height;
+        buildings[i].x = spacing;
 
-        int spacing = 0;
+        spacing += (int)buildings[i].width;
 
-        for (int i = 0; i < MAX_BUILDINGS; i++)
-        {
-            buildings[i].width = (float)GetRandomValue(50, 200);
-            buildings[i].x = -6000.0f + spacing;
+        buildColors[i] = (Color){ GetRandomValue(200, 240), 
+        GetRandomValue(200, 240), GetRandomValue(200, 250), 255 };
+    }
 
-            spacing += (int)buildings[i].width;
+    /*This sets the bounds of the camera.*/
+    Camera2D camera = { 0 };
+    camera.target = (Vector2)
+    {
+        player.x + 400.0f, player.y + 300.0f // Updated to center camera closer to the player.
+    };
+    camera.offset = (Vector2)
+    {
+        screenWidth / 2.0f, screenHeight / 2.0f
+    };
+    camera.rotation = 0.0f;
+    camera.zoom = 0.8f; // Reduced zoom to have a better view of objects.
 
-            buildColors[i] = (Color)
-            {
-                GetRandomValue(200, 240), GetRandomValue(200, 240),
-                GetRandomValue(200,250), 255
-            };
-        }
+    BeginMode2D(camera);
 
-        Camera2D camera = { 0 };
-        camera.target = (Vector2)
-        {
-            player.x + 20.0f, player.y + 20.0f
-        };
-        camera.offset = (Vector2)
-        {
-            screenWidth/2.0f, screenHeight/2.0f
-        };
-        camera.rotation = 0.0f;
-        camera.zoom = 1.0f;
+    DrawRectangle(-6000, screenHeight - 130, 13000, 800, DARKGRAY); // Adjusted y position and height for visibility.
 
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-        BeginMode2D(camera);
-
-        DrawRectangle(-6000, 320, 13000, 8000, DARKGRAY);
-
-        for (int i = 0; i < MAX_BUILDINGS; i++) 
+    for (int i = 0; i < MAX_BUILDINGS; i++)
         DrawRectangleRec(buildings[i], buildColors[i]);
 
-        DrawRectangleRec(player, RED);
+    DrawRectangleRec(player, RED);
 
-        DrawLine((int)camera.target.x, -screenHeight*10, 
-        (int)camera.target.x, screenHeight*10, GREEN);
-        DrawLine(-screenWidth*10, (int)camera.target.y, 
-        screenWidth*10, (int)camera.target.y, GREEN);
+    DrawLine((int)camera.target.x, -screenHeight * 10, 
+             (int)camera.target.x, screenHeight * 10, GREEN);
+    DrawLine(-screenWidth * 10, (int)camera.target.y, 
+             screenWidth * 10, (int)camera.target.y, GREEN);
 
+    DrawText("SCREEN AREA", 20, 10, 20, RED); // Moved text to a visible location.
 
-        DrawRectangle( 10, 10, 250, 113, Fade(SKYBLUE, 0.5f));
-        DrawRectangleLines( 10, 10, 250, 113, BLUE);
+    DrawRectangle(0, 0, 20, 5, RED);
+    DrawRectangle(0, 5, 5, 20 - 10, RED);
+    DrawRectangle(20 - 5, 5, 5, 20 - 10, RED);
+    DrawRectangle(0, 20 - 5, 20, 5, RED);
 
-        DrawText("Free 2d camera controls:", 20, 20, 10, BLACK);
-        DrawText("- Right/Left to move Offset", 40, 40, 10, DARKGRAY);
-        DrawText("- Mouse Wheel to Zoom in-out", 40, 60, 10, DARKGRAY);
-        DrawText("- A / S to Rotate", 40, 80, 10, DARKGRAY);
-        DrawText("- R to reset Zoom and Rotation", 40, 100, 10, DARKGRAY);
+    DrawRectangle(10, 10, 250, 113, Fade(SKYBLUE, 0.5f));
+    DrawRectangleLines(10, 10, 250, 113, BLUE);
 
-    // TODO: Draw GAMEPLAY screen here!
-    DrawText("PRESS ENTER or TAP to JUMP to ENDING SCREEN", 
-    130, 500, 50, PASTELPINK);
+    DrawText("Free 2d camera controls:", 20, 20, 10, BLACK);
+    DrawText("- Right/Left to move Offset", 40, 40, 10, DARKGRAY);
+    DrawText("- Mouse Wheel to Zoom in-out", 40, 60, 10, DARKGRAY);
+    DrawText("- A / S to Rotate", 40, 80, 10, DARKGRAY);
+    DrawText("- R to reset Zoom and Rotation", 40, 100, 10, DARKGRAY);
+
+    if ((GameComplete == true) && (CheckPoint_1 == true))
+    {
+        DrawText("PRESS ENTER or TAP to JUMP to ENDING SCREEN", 
+                 130, 500, 50, PASTELPINK);
+    }
+
+    EndMode2D();
 }
+
 
 // Gameplay Screen Unload logic
 void UnloadGameplayScreen(void)
@@ -122,7 +132,5 @@ void UnloadGameplayScreen(void)
 // Gameplay Screen should finish?
 int FinishGameplayScreen(void)
 {
-    EndMode2D;
-    EndDrawing();
     return finishScreen;
 }
