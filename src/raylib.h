@@ -165,6 +165,9 @@
 #define RL_MATRIX_TYPE
 
 // Some Basic Colors
+/*Ryan Wiseman's Custom Palette*/
+#define PASTELPINK CLITERAL(Color){ 255, 209, 220, 255 }   //Pastel Pink
+
 // NOTE: Custom raylib color palette for amazing visuals on WHITE background
 #define LIGHTGRAY  CLITERAL(Color){ 200, 200, 200, 255 }   // Light Gray
 #define GRAY       CLITERAL(Color){ 130, 130, 130, 255 }   // Gray

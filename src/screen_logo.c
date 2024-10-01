@@ -1,27 +1,12 @@
-/**********************************************************************************************
+/************************************************************************
+*   <Spright Blight>
+*   <Bullet hell spright game>
 *
-*   raylib - Advance Game template
+*   This game was created via raylib,
+*   Credit to raysan5 for designing this incredible engine
 *
-*   Logo Screen Functions Definitions (Init, Update, Draw, Unload)
-*
-*   Copyright (c) 2014-2022 Ramon Santamaria (@raysan5)
-*
-*   This software is provided "as-is", without any express or implied warranty. In no event
-*   will the authors be held liable for any damages arising from the use of this software.
-*
-*   Permission is granted to anyone to use this software for any purpose, including commercial
-*   applications, and to alter it and redistribute it freely, subject to the following restrictions:
-*
-*     1. The origin of this software must not be misrepresented; you must not claim that you
-*     wrote the original software. If you use this software in a product, an acknowledgment
-*     in the product documentation would be appreciated but is not required.
-*
-*     2. Altered source versions must be plainly marked as such, and must not be misrepresented
-*     as being the original software.
-*
-*     3. This notice may not be removed or altered from any source distribution.
-*
-**********************************************************************************************/
+*   Copyright (c) 2024 - Ryan Wiseman
+************************************************************************/
 
 #include "raylib.h"
 #include "screens.h"
@@ -72,43 +57,50 @@ void InitLogoScreen(void)
 // Logo Screen Update logic
 void UpdateLogoScreen(void)
 {
-    if (state == 0)                 // State 0: Top-left square corner blink logic
+    // State 0: Top-left square corner blink logic
+    if (state == 0)                 
     {
         framesCounter++;
 
         if (framesCounter == 80)
         {
             state = 1;
-            framesCounter = 0;      // Reset counter... will be used later...
+            // Reset counter... will be used later...
+            framesCounter = 0;      
         }
     }
-    else if (state == 1)            // State 1: Bars animation logic: top and left
+    // State 1: Bars animation logic: top and left
+    else if (state == 1)            
     {
         topSideRecWidth += 8;
         leftSideRecHeight += 8;
 
         if (topSideRecWidth == 256) state = 2;
     }
-    else if (state == 2)            // State 2: Bars animation logic: bottom and right
+    // State 2: Bars animation logic: bottom and right
+    else if (state == 2)            
     {
         bottomSideRecWidth += 8;
         rightSideRecHeight += 8;
 
         if (bottomSideRecWidth == 256) state = 3;
     }
-    else if (state == 3)            // State 3: "raylib" text-write animation logic
+    // State 3: "raylib" text-write animation logic
+    else if (state == 3)            
     {
         framesCounter++;
 
         if (lettersCount < 10)
         {
-            if (framesCounter/12)   // Every 12 frames, one more letter!
+            // Every 12 frames, one more letter!
+            if (framesCounter/12)  
             {
                 lettersCount++;
                 framesCounter = 0;
             }
         }
-        else    // When all letters have appeared, just fade out everything
+        // When all letters have appeared, just fade out everything
+        else    
         {
             if (framesCounter > 200)
             {
@@ -129,34 +121,59 @@ void DrawLogoScreen(void)
 {
     if (state == 0)         // Draw blinking top-left square corner
     {
-        if ((framesCounter/10)%2) DrawRectangle(logoPositionX, logoPositionY, 16, 16, BLACK);
+        if ((framesCounter/10)%2) DrawRectangle(
+            logoPositionX, logoPositionY, 16, 16, BLACK);
     }
     else if (state == 1)    // Draw bars animation: top and left
     {
-        DrawRectangle(logoPositionX, logoPositionY, topSideRecWidth, 16, BLACK);
-        DrawRectangle(logoPositionX, logoPositionY, 16, leftSideRecHeight, BLACK);
+        DrawRectangle(
+            logoPositionX, logoPositionY, topSideRecWidth, 16, BLACK);
+        DrawRectangle(
+            logoPositionX, logoPositionY, 16, leftSideRecHeight, BLACK);
     }
     else if (state == 2)    // Draw bars animation: bottom and right
     {
-        DrawRectangle(logoPositionX, logoPositionY, topSideRecWidth, 16, BLACK);
-        DrawRectangle(logoPositionX, logoPositionY, 16, leftSideRecHeight, BLACK);
+        DrawRectangle(
+            logoPositionX, logoPositionY, topSideRecWidth, 16, BLACK);
+        DrawRectangle(
+            logoPositionX, logoPositionY, 16, leftSideRecHeight, BLACK);
 
-        DrawRectangle(logoPositionX + 240, logoPositionY, 16, rightSideRecHeight, BLACK);
-        DrawRectangle(logoPositionX, logoPositionY + 240, bottomSideRecWidth, 16, BLACK);
+        DrawRectangle(
+            logoPositionX + 240, logoPositionY, 16, 
+            rightSideRecHeight, BLACK);
+        DrawRectangle(
+            logoPositionX, logoPositionY + 240, 
+            bottomSideRecWidth, 16, BLACK);
     }
-    else if (state == 3)    // Draw "raylib" text-write animation + "powered by"
+    // Draw "raylib" text-write animation + "powered by"
+    else if (state == 3)    
     {
-        DrawRectangle(logoPositionX, logoPositionY, topSideRecWidth, 16, Fade(BLACK, alpha));
-        DrawRectangle(logoPositionX, logoPositionY + 16, 16, leftSideRecHeight - 32, Fade(BLACK, alpha));
+        DrawRectangle(
+            logoPositionX, logoPositionY, topSideRecWidth, 16, 
+            Fade(BLACK, alpha));
+        DrawRectangle(
+            logoPositionX, logoPositionY + 16, 16, 
+            leftSideRecHeight - 32, Fade(BLACK, alpha));
 
-        DrawRectangle(logoPositionX + 240, logoPositionY + 16, 16, rightSideRecHeight - 32, Fade(BLACK, alpha));
-        DrawRectangle(logoPositionX, logoPositionY + 240, bottomSideRecWidth, 16, Fade(BLACK, alpha));
+        DrawRectangle(
+            logoPositionX + 240, logoPositionY + 16, 16, 
+            rightSideRecHeight - 32, Fade(BLACK, alpha));
+        DrawRectangle(
+            logoPositionX, logoPositionY + 240, 
+            bottomSideRecWidth, 16, Fade(BLACK, alpha));
 
-        DrawRectangle(GetScreenWidth()/2 - 112, GetScreenHeight()/2 - 112, 224, 224, Fade(RAYWHITE, alpha));
+        DrawRectangle(
+            GetScreenWidth()/2 - 112, GetScreenHeight()/2 - 112, 
+            224, 224, Fade(RAYWHITE, alpha));
 
-        DrawText(TextSubtext("raylib", 0, lettersCount), GetScreenWidth()/2 - 44, GetScreenHeight()/2 + 48, 50, Fade(BLACK, alpha));
+        DrawText(
+            TextSubtext("raylib", 0, lettersCount), 
+            GetScreenWidth()/2 - 44, 
+            GetScreenHeight()/2 + 48, 50, Fade(BLACK, alpha));
 
-        if (framesCounter > 20) DrawText("powered by", logoPositionX, logoPositionY - 27, 20, Fade(DARKGRAY, alpha));
+        if (framesCounter > 20) DrawText(
+            "powered by", logoPositionX, 
+            logoPositionY - 27, 20, Fade(DARKGRAY, alpha));
     }
 }
 
