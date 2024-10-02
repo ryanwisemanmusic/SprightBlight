@@ -42,8 +42,9 @@ void InitGameplayScreen(void)
 {
     for (int i = 0; i < MAX_BUILDINGS; i++)
     {
+        // Reduced height to ensure buildings are more visible.
         buildings[i].width = (float)GetRandomValue(50, 200);
-        buildings[i].height = (float)GetRandomValue(100, 400); // Reduced height to ensure buildings are more visible.
+        buildings[i].height = (float)GetRandomValue(100, 400); 
         buildings[i].y = screenHeight - 130.0f - buildings[i].height;
         buildings[i].x = spacing;
 

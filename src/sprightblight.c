@@ -23,7 +23,8 @@ this game translates to the internet.*/
 GameScreen currentScreen = LOGO;
 Font font = { 0 };
 Music musicTitle = { 0 };
-Music musicGameplay = { 0 };
+Music musicGameplayLvl1_01 = { 0 };
+Music musicEnding = { 0 };
 Sound fxCoin = { 0 };
 
 static float currentVolume = 1.0f; 
@@ -63,13 +64,14 @@ int main(void)
     use my own audio assets.*/
     font = LoadFont("resources/mecha.png");
     musicTitle = LoadMusicStream("resources/Eventide.wav");
+    musicGameplayLvl1_01 = 
+    LoadMusicStream("resources/gameplay_soundtrack_01.wav");
+    musicEnding = LoadMusicStream("resources/DrunkenSunsets.wav");
     fxCoin = LoadSound("resources/coin.wav");
 
     /*This allows us to set the volume of our music and play it*/
     SetMusicVolume(musicTitle, currentVolume);
     PlayMusicStream(musicTitle);
-
-    
 
     // Setup and init first screen
     currentScreen = LOGO;
@@ -103,6 +105,8 @@ int main(void)
     // Unload global data loaded
     UnloadFont(font);
     UnloadMusicStream(musicTitle);
+    UnloadMusicStream(musicGameplayLvl1_01);
+    UnloadMusicStream(musicEnding);
     UnloadSound(fxCoin);
 
     /*Close audio*/
@@ -223,9 +227,18 @@ static void DrawTransition(void)
 // Update and draw game frame
 static void UpdateDrawFrame(void)
 {
+    /*Audio logic for all the draw frames.*/
     if ((currentScreen == LOGO) || (currentScreen == TITLE))
         UpdateMusicStream(musicTitle);
-
+    if (currentScreen == GAMEPLAY)
+        UpdateMusicStream(musicGameplayLvl1_01);
+        SetMusicVolume(musicTitle, currentVolume);
+        PlayMusicStream(musicTitle);
+    if (currentScreen == ENDING)
+        UpdateMusicStream(musicEnding);
+        SetMusicVolume(musicEnding, currentVolume);
+        PlayMusicStream(musicEnding);
+    
     if (!onTransition)
     {
         switch(currentScreen)
@@ -240,7 +253,6 @@ static void UpdateDrawFrame(void)
             case TITLE:
             {
                 UpdateTitleScreen();
-
                 if (FinishTitleScreen() == 1) 
                 TransitionToScreen(OPTIONS);
                 else if (FinishTitleScreen() == 2) 
@@ -258,12 +270,14 @@ static void UpdateDrawFrame(void)
             {
                 UpdateGameplayScreen();
                 StopMusicStream(musicTitle);
+                
                 if (FinishGameplayScreen() == 1) TransitionToScreen(ENDING);
             //else if (FinishGameplayScreen() == 2) TransitionToScreen(TITLE);
             } break;
 
             case ENDING:
             {
+                StopMusicStream(musicGameplayLvl1_01);
                 UpdateEndingScreen();
 
                 if (FinishEndingScreen() == 1) TransitionToScreen(TITLE);
