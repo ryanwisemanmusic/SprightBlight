@@ -42,6 +42,8 @@ void UpdateTitleScreen(void)
 // Title Screen Draw logic
 void DrawTitleScreen(void)
 {
+    InitAudioDevice();
+    
     // TODO: Draw TITLE screen here!
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), C_CREAM_01);
     Vector2 pos = { 20, 10 };
@@ -49,6 +51,8 @@ void DrawTitleScreen(void)
     pos, font.baseSize*8.0f, 4, DARKGREEN);
     DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 
     120, 500, 50, DARKGREEN);
+
+    
 }
 
 // Title Screen Unload logic

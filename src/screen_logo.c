@@ -52,6 +52,9 @@ void InitLogoScreen(void)
 
     state = 0;
     alpha = 1.0f;
+
+    InitAudioDevice();
+    
 }
 
 // Logo Screen Update logic
