@@ -9,6 +9,7 @@
 ************************************************************************/
 
 #include "raylib.h"
+#include "raymath.h"
 #include "screens.h"
 
 /*Global Variables*/
@@ -34,6 +35,8 @@ Camera2D camera = { 0 };
 
 int spacing = 0;
 
+float truerotation = 0.0f;
+
 // Gameplay Screen Initialization logic
 void InitGameplayScreen(void)
 {
@@ -57,6 +60,25 @@ void InitGameplayScreen(void)
 // Gameplay Screen Update logic
 void UpdateGameplayScreen(void)
 {
+    SetTargetFPS(60);
+    Camera2D camera = { 0 };
+    camera.target = (Vector2)
+    {
+        player.x + player.width / 2.0f, player.y + player.height / 2.0f
+    };
+    camera.offset = (Vector2)
+    {
+        screenWidth / 2.0f, screenHeight / 2.0f
+    };
+    camera.rotation = 0.0f;
+    camera.zoom = 0.8f; 
+
+    if (IsKeyDown(KEY_RIGHT)) player.x += 2;
+    else if (IsKeyDown(KEY_LEFT)) player.x -= 2;
+
+    // Camera target follows player
+    camera.target = (Vector2){ player.x + 20, player.y + 20 };
+
     // Press enter or tap to change to ENDING screen
     if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP))
     {
@@ -70,34 +92,6 @@ void UpdateGameplayScreen(void)
 
         }
     }
-
-    if (IsKeyDown(KEY_RIGHT)) player.x += 2;
-        else if (IsKeyDown(KEY_LEFT)) player.x -= 2;
-
-        // Camera target follows player
-        camera.target = (Vector2){ player.x + 20, player.y + 20 };
-
-        // Camera rotation controls
-        if (IsKeyDown(KEY_A)) camera.rotation--;
-        else if (IsKeyDown(KEY_S)) camera.rotation++;
-
-        // Limit camera rotation to 80 degrees (-40 to 40)
-        if (camera.rotation > 40) camera.rotation = 40;
-        else if (camera.rotation < -40) camera.rotation = -40;
-
-        // Camera zoom controls
-        camera.zoom += ((float)GetMouseWheelMove()*0.05f);
-
-        if (camera.zoom > 3.0f) camera.zoom = 3.0f;
-        else if (camera.zoom < 0.1f) camera.zoom = 0.1f;
-
-        // Camera reset (zoom and rotation)
-        if (IsKeyPressed(KEY_R))
-        {
-            camera.zoom = 1.0f;
-            camera.rotation = 0.0f;
-        }
-    
 }
 
 /*Gameplay Section, where we do all our gameplay elements!*/
@@ -105,6 +99,7 @@ void DrawGameplayScreen(void)
 {
     /*This sets the bounds of the camera.*/
     Camera2D camera = { 0 };
+    
     camera.target = (Vector2)
     {
         player.x - 50.0f, player.y - 300.0f
@@ -116,19 +111,29 @@ void DrawGameplayScreen(void)
     camera.rotation = 0.0f;
     camera.zoom = 0.8f; 
 
-    BeginMode2D(camera);
+        /*We set our rotation to a true rotation
+        variable, so that we can eventually snap back to
+        proper place*/
+        if (IsKeyDown(KEY_A))
+        {
+            truerotation -= 1.0f;
+        }
 
+        if (IsKeyDown(KEY_S))
+        {
+            truerotation += 1.0f;
+        }
+        
+        camera.rotation = truerotation;
+        
+        BeginMode2D(camera);
+   
     DrawRectangle(-6000, screenHeight - 130, 13000, 800, DARKGRAY);
 
     for (int i = 0; i < MAX_BUILDINGS; i++)
         DrawRectangleRec(buildings[i], buildColors[i]);
 
     DrawRectangleRec(player, RED);
-
-    DrawLine((int)camera.target.x, -screenHeight * 10, 
-             (int)camera.target.x, screenHeight * 10, GREEN);
-    DrawLine(-screenWidth * 10, (int)camera.target.y, 
-             screenWidth * 10, (int)camera.target.y, GREEN);
 
     DrawText("SCREEN AREA", 20, 10, 20, RED);
 

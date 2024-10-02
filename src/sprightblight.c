@@ -19,6 +19,7 @@ this game translates to the internet.*/
 
 // Shared Variables Definition (global)
 // NOTE: Those variables are shared between modules through screens.h
+
 GameScreen currentScreen = LOGO;
 Font font = { 0 };
 Music music = { 0 };
@@ -58,7 +59,7 @@ int main(void)
     /*Global Asset Storage Place. Will be modifying the program to
     use my own audio assets.*/
     font = LoadFont("resources/mecha.png");
-    music = LoadMusicStream("resources/ambient.ogg");
+    music = LoadMusicStream("resources/Eventide.wav");
     fxCoin = LoadSound("resources/coin.wav");
 
     /*This allows us to set the volume of our music and play it*/
