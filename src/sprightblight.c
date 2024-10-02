@@ -22,8 +22,11 @@ this game translates to the internet.*/
 
 GameScreen currentScreen = LOGO;
 Font font = { 0 };
-Music music = { 0 };
+Music musicTitle = { 0 };
+Music musicGameplay = { 0 };
 Sound fxCoin = { 0 };
+
+static float currentVolume = 1.0f; 
 
 // Local Variables Definition (local to this module)
 static const int screenWidth = 1700;
@@ -59,12 +62,14 @@ int main(void)
     /*Global Asset Storage Place. Will be modifying the program to
     use my own audio assets.*/
     font = LoadFont("resources/mecha.png");
-    music = LoadMusicStream("resources/Eventide.wav");
+    musicTitle = LoadMusicStream("resources/Eventide.wav");
     fxCoin = LoadSound("resources/coin.wav");
 
     /*This allows us to set the volume of our music and play it*/
-    SetMusicVolume(music, 1.0f);
-    PlayMusicStream(music);
+    SetMusicVolume(musicTitle, currentVolume);
+    PlayMusicStream(musicTitle);
+
+    
 
     // Setup and init first screen
     currentScreen = LOGO;
@@ -88,14 +93,16 @@ int main(void)
     {
         case LOGO: UnloadLogoScreen(); break;
         case TITLE: UnloadTitleScreen(); break;
-        case GAMEPLAY: UnloadGameplayScreen(); break;
+        case GAMEPLAY: 
+        UnloadGameplayScreen(); 
+        break;
         case ENDING: UnloadEndingScreen(); break;
         default: break;
     }
 
     // Unload global data loaded
     UnloadFont(font);
-    UnloadMusicStream(music);
+    UnloadMusicStream(musicTitle);
     UnloadSound(fxCoin);
 
     /*Close audio*/
@@ -114,7 +121,11 @@ static void ChangeToScreen(GameScreen screen)
     {
         case LOGO: UnloadLogoScreen(); break;
         case TITLE: UnloadTitleScreen(); break;
-        case GAMEPLAY: UnloadGameplayScreen(); break;
+
+        case GAMEPLAY: 
+        UnloadGameplayScreen(); 
+        break;
+
         case ENDING: UnloadEndingScreen(); break;
         default: break;
     }
@@ -122,7 +133,10 @@ static void ChangeToScreen(GameScreen screen)
     // Init next screen
     switch (screen)
     {
-        case LOGO: InitLogoScreen(); break;
+        case LOGO: 
+        InitLogoScreen(); 
+        break;
+
         case TITLE: InitTitleScreen(); break;
         case GAMEPLAY: InitGameplayScreen(); break;
         case ENDING: InitEndingScreen(); break;
@@ -209,7 +223,8 @@ static void DrawTransition(void)
 // Update and draw game frame
 static void UpdateDrawFrame(void)
 {
-    UpdateMusicStream(music); 
+    if ((currentScreen == LOGO) || (currentScreen == TITLE))
+        UpdateMusicStream(musicTitle);
 
     if (!onTransition)
     {
@@ -242,7 +257,7 @@ static void UpdateDrawFrame(void)
             case GAMEPLAY:
             {
                 UpdateGameplayScreen();
-
+                StopMusicStream(musicTitle);
                 if (FinishGameplayScreen() == 1) TransitionToScreen(ENDING);
             //else if (FinishGameplayScreen() == 2) TransitionToScreen(TITLE);
             } break;
