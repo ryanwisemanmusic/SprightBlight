@@ -71,6 +71,8 @@ int main(void)
 
     /*This allows us to set the volume of our music and play it*/
     SetMusicVolume(musicTitle, currentVolume);
+    SetMusicVolume(musicGameplayLvl1_01, currentVolume);
+    SetMusicVolume(musicGameplayLvl1_01, currentVolume);
     PlayMusicStream(musicTitle);
 
     // Setup and init first screen
@@ -101,7 +103,7 @@ int main(void)
         case ENDING: UnloadEndingScreen(); break;
         default: break;
     }
-
+    
     // Unload global data loaded
     UnloadFont(font);
     UnloadMusicStream(musicTitle);
@@ -120,6 +122,9 @@ int main(void)
 // Change to next screen, no transition
 static void ChangeToScreen(GameScreen screen)
 {
+    if (currentScreen == GAMEPLAY && !IsMusicStreamPlaying(musicGameplayLvl1_01)) {
+    PlayMusicStream(musicGameplayLvl1_01);
+}
     // Unload current screen
     switch (currentScreen)
     {
@@ -128,9 +133,13 @@ static void ChangeToScreen(GameScreen screen)
 
         case GAMEPLAY: 
         UnloadGameplayScreen(); 
+        StopMusicStream(musicTitle);
         break;
 
-        case ENDING: UnloadEndingScreen(); break;
+        case ENDING: 
+        UnloadEndingScreen(); 
+        
+        break;
         default: break;
     }
 
@@ -142,7 +151,10 @@ static void ChangeToScreen(GameScreen screen)
         break;
 
         case TITLE: InitTitleScreen(); break;
-        case GAMEPLAY: InitGameplayScreen(); break;
+        case GAMEPLAY: InitGameplayScreen(); 
+        PlayMusicStream(musicGameplayLvl1_01);
+        break;
+
         case ENDING: InitEndingScreen(); break;
         default: break;
     }
@@ -184,6 +196,7 @@ static void UpdateTransition(void)
                 case GAMEPLAY: UnloadGameplayScreen(); break;
                 case ENDING: UnloadEndingScreen(); break;
                 default: break;
+                
             }
 
             // Load next screen
@@ -230,14 +243,9 @@ static void UpdateDrawFrame(void)
     /*Audio logic for all the draw frames.*/
     if ((currentScreen == LOGO) || (currentScreen == TITLE))
         UpdateMusicStream(musicTitle);
+    
     if (currentScreen == GAMEPLAY)
         UpdateMusicStream(musicGameplayLvl1_01);
-        SetMusicVolume(musicTitle, currentVolume);
-        PlayMusicStream(musicTitle);
-    if (currentScreen == ENDING)
-        UpdateMusicStream(musicEnding);
-        SetMusicVolume(musicEnding, currentVolume);
-        PlayMusicStream(musicEnding);
     
     if (!onTransition)
     {
@@ -269,8 +277,6 @@ static void UpdateDrawFrame(void)
             case GAMEPLAY:
             {
                 UpdateGameplayScreen();
-                StopMusicStream(musicTitle);
-                
                 if (FinishGameplayScreen() == 1) TransitionToScreen(ENDING);
             //else if (FinishGameplayScreen() == 2) TransitionToScreen(TITLE);
             } break;
