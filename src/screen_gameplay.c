@@ -12,10 +12,11 @@
 #include "raymath.h"
 #include "screens.h"
 
-/*Global Variables*/
+/*Global Defined Variables*/
 #define MAX_BUILDINGS 100
 #define G 400
-
+#define PLAYER_JUMP_SPD 350.0f
+#define PLAYER_HOR_SPD 200.0f
 
 //constant integers
 const int screenWidth = 1700;
@@ -31,9 +32,16 @@ bool GameComplete = false;
 
 //Struct definitions
 Rectangle player = { 400, 830, 40, 40 }; 
+
+//Building struct definitions
 Rectangle buildings[MAX_BUILDINGS] = { 0 };
 Color buildColors[MAX_BUILDINGS] = { 0 };
+
+//Camera struct definitions
 Camera2D camera = { 0 };
+
+//Global Items Legnth condition. You want this global
+
 
 int spacing = 0;
 
@@ -52,6 +60,35 @@ typedef struct EnvItem
     int blocking;
     Color color;
 } EnvItem;
+
+//Items array
+EnvItem envItems[] = {
+    {{ 0, 0, 1000, 400 } , 0, LIGHTGRAY },
+    {{ 0, 400, 1000, 200 } , 1, GRAY },
+    {{ 300, 200, 400, 10 }, 1, GRAY},
+    {{ 250, 300, 100, 10 }, 1, GRAY}
+};
+
+int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
+
+/*Any Module Functions Go Here*/
+void UpdatePlayer(
+    Player *player, EnvItem *envItems, int envItemsLength, float delta);
+void UpdateCameraCenter(
+    Camera2D *camera, Player *player, EnvItem *envItems, 
+    int envItemsLength, float delta, int width, int height);
+void UpdateCameraCenterInsideMap(
+    Camera2D *camera, Player *player, EnvItem *envItems, 
+    int envItemsLength, float delta, int width, int height);
+void UpdateCameraCenterSmoothFollow(
+    Camera2D *camera, Player *player, EnvItem *envItems, 
+    int envItemsLength, float delta, int width, int height);
+void UpdateCameraOutOnLanding(
+    Camera2D *camera, Player *player, EnvItem *envItems, 
+    int envItemsLength, float delta, int width, int height);
+void UpdateCameraPlayerBoundsPush(
+    Camera2D *camera, Player *player, EnvItem *envItems, 
+    int envItemsLength, float delta, int width, int height);
 
 // Gameplay Screen Initialization logic
 void InitGameplayScreen(void)
@@ -74,6 +111,13 @@ void InitGameplayScreen(void)
     finishScreen = 0;
 }
 
+/*Player call functions*/
+void UpdatePlayer(
+    Player *player, EnvItem *envItems, int envItemsLength, float delta)
+{
+
+}
+
 // Gameplay Screen Update logic
 void UpdateGameplayScreen(void)
 {
@@ -92,6 +136,7 @@ void UpdateGameplayScreen(void)
 
     if (IsKeyDown(KEY_RIGHT)) player.x += 2;
     else if (IsKeyDown(KEY_LEFT)) player.x -= 2;
+    
 
     // Camera target follows player
     camera.target = (Vector2){ player.x + 20, player.y + 20 };
@@ -108,6 +153,11 @@ void UpdateGameplayScreen(void)
         {
 
         }
+    }
+
+    if (IsKeyDown(KEY_SPACE))
+    {
+        
     }
 }
 
@@ -187,4 +237,40 @@ void UnloadGameplayScreen(void)
 int FinishGameplayScreen(void)
 {
     return finishScreen;
+}
+
+/*Camera update functions*/
+void UpdateCameraCenter(
+    Camera2D *camera, Player *player, EnvItem *envItems, 
+    int envItemsLength, float delta, int width, int height)
+{
+
+}
+
+void UpdateCameraCenterInsideMap(
+    Camera2D *camera, Player *player, EnvItem *envItems, 
+    int envItemsLength, float delta, int width, int height)
+{
+
+}
+
+void UpdateCameraCenterSmoothFollow(
+    Camera2D *camera, Player *player, EnvItem *envItems, 
+    int envItemsLength, float delta, int width, int height)
+{
+
+}
+
+void UpdateCameraOutOnLanding(
+    Camera2D *camera, Player *player, EnvItem *envItems, 
+    int envItemsLength, float delta, int width, int height)
+{
+
+}
+
+void UpdateCameraPlayerBoundsPush(
+    Camera2D *camera, Player *player, EnvItem *envItems, 
+    int envItemsLength, float delta, int width, int height)
+{
+
 }
