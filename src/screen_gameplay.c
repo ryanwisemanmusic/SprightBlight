@@ -14,6 +14,8 @@
 
 /*Global Variables*/
 #define MAX_BUILDINGS 100
+#define G 400
+
 
 //constant integers
 const int screenWidth = 1700;
@@ -36,6 +38,20 @@ Camera2D camera = { 0 };
 int spacing = 0;
 
 float truerotation = 0.0f;
+
+typedef struct Player
+{
+    Vector2 position;
+    float speed;
+    bool canJump;
+} Player;
+
+typedef struct EnvItem
+{
+    Rectangle rect;
+    int blocking;
+    Color color;
+} EnvItem;
 
 // Gameplay Screen Initialization logic
 void InitGameplayScreen(void)

@@ -65,7 +65,8 @@ int main(void)
     use my own audio assets.*/
     font = LoadFont("resources/mecha.png");
     musicTitle = LoadMusicStream("resources/Eventide.wav");
-    musicGameplayLvl1_01 = LoadMusicStream("resources/gameplay_soundtrack_01.wav");
+    musicGameplayLvl1_01 = 
+    LoadMusicStream("resources/gameplay_soundtrack_01.wav");
     musicEnding = LoadMusicStream("resources/DrunkenSunsets.wav");
     fxCoin = LoadSound("resources/coin.wav");
 
@@ -208,10 +209,22 @@ static void UpdateTransition(void)
             // Load next screen
             switch (transToScreen)
             {
-                case LOGO: InitLogoScreen(); PlayMusicStream(musicTitle); break;
-                case TITLE: InitTitleScreen(); PlayMusicStream(musicTitle); break;
-                case GAMEPLAY: InitGameplayScreen(); PlayMusicStream(musicGameplayLvl1_01); break;
-                case ENDING: InitEndingScreen(); PlayMusicStream(musicEnding); break;
+                case LOGO: 
+                InitLogoScreen(); 
+                PlayMusicStream(musicTitle); 
+                break;
+                case TITLE: 
+                InitTitleScreen(); 
+                PlayMusicStream(musicTitle); 
+                break;
+                case GAMEPLAY: 
+                InitGameplayScreen(); 
+                PlayMusicStream(musicGameplayLvl1_01); 
+                break;
+                case ENDING: 
+                InitEndingScreen(); 
+                PlayMusicStream(musicEnding); 
+                break;
                 default: break;
             }
 
