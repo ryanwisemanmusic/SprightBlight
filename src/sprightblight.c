@@ -10,6 +10,7 @@
 
 #include "raylib.h"
 #include "screens.h" 
+#include <stdio.h>
 
 /*We include some web headers so that
 this game translates to the internet.*/
@@ -40,7 +41,7 @@ static bool transFadeOut = false;
 static int transFromScreen = -1;
 static GameScreen transToScreen = UNKNOWN;
 
-/*Any local funcitons will go here*/
+/*Any local functions will go here*/
 // Change to screen, no transition effect
 static void ChangeToScreen(int screen);  
 // Request transition to next screen
@@ -64,15 +65,14 @@ int main(void)
     use my own audio assets.*/
     font = LoadFont("resources/mecha.png");
     musicTitle = LoadMusicStream("resources/Eventide.wav");
-    musicGameplayLvl1_01 = 
-    LoadMusicStream("resources/gameplay_soundtrack_01.wav");
+    musicGameplayLvl1_01 = LoadMusicStream("resources/gameplay_soundtrack_01.wav");
     musicEnding = LoadMusicStream("resources/DrunkenSunsets.wav");
     fxCoin = LoadSound("resources/coin.wav");
 
     /*This allows us to set the volume of our music and play it*/
     SetMusicVolume(musicTitle, currentVolume);
     SetMusicVolume(musicGameplayLvl1_01, currentVolume);
-    SetMusicVolume(musicGameplayLvl1_01, currentVolume);
+    SetMusicVolume(musicEnding, currentVolume);
     PlayMusicStream(musicTitle);
 
     // Setup and init first screen
@@ -83,7 +83,7 @@ int main(void)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
 #else
     SetTargetFPS(60); /*This could be done where we have
-    FPS targetting based on system preference like in the 
+    FPS targeting based on system preference like in the 
     example of the Steam Deck*/
 
     // Main game loop
@@ -97,8 +97,7 @@ int main(void)
     {
         case LOGO: UnloadLogoScreen(); break;
         case TITLE: UnloadTitleScreen(); break;
-        case GAMEPLAY: 
-        UnloadGameplayScreen(); 
+        case GAMEPLAY: UnloadGameplayScreen(); 
         break;
         case ENDING: UnloadEndingScreen(); break;
         default: break;
@@ -122,41 +121,52 @@ int main(void)
 // Change to next screen, no transition
 static void ChangeToScreen(GameScreen screen)
 {
-    if (currentScreen == GAMEPLAY && !IsMusicStreamPlaying(musicGameplayLvl1_01)) {
-    PlayMusicStream(musicGameplayLvl1_01);
-}
+    // Stop the current music when switching screens
+    switch (currentScreen)
+    {
+        case LOGO: StopMusicStream(musicTitle); break;
+        case TITLE: StopMusicStream(musicTitle); break;
+        case GAMEPLAY: StopMusicStream(musicGameplayLvl1_01); break;
+        case ENDING: StopMusicStream(musicEnding); break;
+        default: break;
+    }
+    
     // Unload current screen
     switch (currentScreen)
     {
         case LOGO: UnloadLogoScreen(); break;
         case TITLE: UnloadTitleScreen(); break;
-
-        case GAMEPLAY: 
-        UnloadGameplayScreen(); 
-        StopMusicStream(musicTitle);
-        break;
-
-        case ENDING: 
-        UnloadEndingScreen(); 
-        
-        break;
+        case GAMEPLAY: UnloadGameplayScreen(); break;
+        case ENDING: UnloadEndingScreen(); break;
         default: break;
     }
 
-    // Init next screen
+    // Init next screen and play corresponding music
     switch (screen)
     {
         case LOGO: 
-        InitLogoScreen(); 
-        break;
+            InitLogoScreen(); 
+            PlayMusicStream(musicTitle);
+            break;
 
-        case TITLE: InitTitleScreen(); break;
-        case GAMEPLAY: InitGameplayScreen(); 
-        PlayMusicStream(musicGameplayLvl1_01);
-        break;
+        case TITLE: 
+            InitTitleScreen(); 
+            PlayMusicStream(musicTitle);
+            break;
 
-        case ENDING: InitEndingScreen(); break;
-        default: break;
+        case GAMEPLAY: 
+            InitGameplayScreen(); 
+            PlayMusicStream(musicGameplayLvl1_01);
+            printf("Playing gameplay music\n");
+            break;
+
+        case ENDING: 
+            InitEndingScreen(); 
+            PlayMusicStream(musicEnding);
+            break;
+
+        default: 
+            break;
     }
 
     currentScreen = screen;
@@ -179,10 +189,6 @@ static void UpdateTransition(void)
     {
         transAlpha += 0.05f;
 
-        /*NOTE: Due to float internal representation, 
-        condition jumps on 1.0f instead of 1.05f*/
-        /*For that reason we compare against 1.01f, 
-        to avoid last frame loading stop*/ 
         if (transAlpha > 1.01f)
         {
             transAlpha = 1.0f;
@@ -202,10 +208,10 @@ static void UpdateTransition(void)
             // Load next screen
             switch (transToScreen)
             {
-                case LOGO: InitLogoScreen(); break;
-                case TITLE: InitTitleScreen(); break;
-                case GAMEPLAY: InitGameplayScreen(); break;
-                case ENDING: InitEndingScreen(); break;
+                case LOGO: InitLogoScreen(); PlayMusicStream(musicTitle); break;
+                case TITLE: InitTitleScreen(); PlayMusicStream(musicTitle); break;
+                case GAMEPLAY: InitGameplayScreen(); PlayMusicStream(musicGameplayLvl1_01); break;
+                case ENDING: InitEndingScreen(); PlayMusicStream(musicEnding); break;
                 default: break;
             }
 
@@ -247,6 +253,9 @@ static void UpdateDrawFrame(void)
     if (currentScreen == GAMEPLAY)
         UpdateMusicStream(musicGameplayLvl1_01);
     
+    if (currentScreen == ENDING)
+        UpdateMusicStream(musicEnding);
+    
     if (!onTransition)
     {
         switch(currentScreen)
@@ -254,7 +263,6 @@ static void UpdateDrawFrame(void)
             case LOGO:
             {
                 UpdateLogoScreen();
-
                 if (FinishLogoScreen()) TransitionToScreen(TITLE);
             } break;
 
@@ -262,58 +270,54 @@ static void UpdateDrawFrame(void)
             {
                 UpdateTitleScreen();
                 if (FinishTitleScreen() == 1) 
-                TransitionToScreen(OPTIONS);
+                    TransitionToScreen(OPTIONS);
                 else if (FinishTitleScreen() == 2) 
-                TransitionToScreen(GAMEPLAY);
+                    TransitionToScreen(GAMEPLAY);
             } break;
 
             case OPTIONS:
             {
                 UpdateOptionsScreen();
-
                 if (FinishOptionsScreen()) TransitionToScreen(TITLE);
             } break;
 
             case GAMEPLAY:
             {
                 UpdateGameplayScreen();
-                if (FinishGameplayScreen() == 1) TransitionToScreen(ENDING);
-            //else if (FinishGameplayScreen() == 2) TransitionToScreen(TITLE);
+                if (FinishGameplayScreen() == 1) 
+                    TransitionToScreen(ENDING);
             } break;
 
             case ENDING:
             {
-                StopMusicStream(musicGameplayLvl1_01);
                 UpdateEndingScreen();
-
-                if (FinishEndingScreen() == 1) TransitionToScreen(TITLE);
-
+                if (FinishEndingScreen() == 1) 
+                    TransitionToScreen(TITLE);
             } break;
-            default: break;
+
+            default: 
+                break;
         }
     }
-    // Update transition (fade-in, fade-out)
-    else UpdateTransition();    
+    else 
+        UpdateTransition();    
     
-
     /*How we draw with the GPU*/
     BeginDrawing();
     ClearBackground(RAYWHITE);
 
-        switch(currentScreen)
-        {
-            case LOGO: DrawLogoScreen(); break;
-            case TITLE: DrawTitleScreen(); break;
-            case OPTIONS: DrawOptionsScreen(); break;
-            case GAMEPLAY: DrawGameplayScreen(); break;
-            case ENDING: DrawEndingScreen(); break;
-            default: break;
-        }
+    switch(currentScreen)
+    {
+        case LOGO: DrawLogoScreen(); break;
+        case TITLE: DrawTitleScreen(); break;
+        case OPTIONS: DrawOptionsScreen(); break;
+        case GAMEPLAY: DrawGameplayScreen(); break;
+        case ENDING: DrawEndingScreen(); break;
+        default: break;
+    }
 
-        // Draw full screen rectangle in front of everything
-        if (onTransition) DrawTransition();
-
-        //DrawFPS(10, 10);
+    // Draw full screen rectangle in front of everything
+    if (onTransition) DrawTransition();
 
     EndDrawing();
 }
