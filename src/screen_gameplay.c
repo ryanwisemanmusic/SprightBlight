@@ -24,13 +24,10 @@ const int screenHeight = 1000;
 static int framesCounter = 0;
 static int finishScreen = 0;
 
-
 //Bool Flags
 bool CheckPoint_1 = false;
 bool GameComplete = false;
 // Updated player y position to keep it more centered vertically.
-
-
 
 //Building struct definitions
 Rectangle buildings[MAX_BUILDINGS] = { 0 };
@@ -38,10 +35,6 @@ Color buildColors[MAX_BUILDINGS] = { 0 };
 
 //Camera struct definitions
 Camera2D camera = { 0 };
-
-
-//Global Items Legnth condition. You want this global
-
 
 int spacing = 0;
 
@@ -65,14 +58,8 @@ typedef struct EnvItem
     Color color;
 } EnvItem;
 
-//Items array
-
-
-
 //Player Definitions
 Player player = { 400, 830, 40, 40 }; 
-
-
 
 /*Any Module Functions Go Here*/
 void UpdatePlayer(
@@ -420,7 +407,7 @@ void UpdateCameraPlayerBoundsPush(
     if (player->position.x > bboxWorldMax.x) 
     camera->target.x = bboxWorldMin.x + 
     (player->position.x - bboxWorldMax.x);
-    
+
     if (player->position.y > bboxWorldMax.y) 
     camera->target.y = bboxWorldMin.y + 
     (player->position.y - bboxWorldMax.y);
