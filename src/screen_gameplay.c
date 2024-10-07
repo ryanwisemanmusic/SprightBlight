@@ -33,21 +33,12 @@ bool GameComplete = false;
 //Struct definitions
 Rectangle player = { 400, 830, 40, 40 }; 
 
-Player player1 = { 0};
-player1.position = (Vector2) { 400, 830 };
-player1.speed = 0;
-player1.canJump = false;
-
 //Building struct definitions
 Rectangle buildings[MAX_BUILDINGS] = { 0 };
 Color buildColors[MAX_BUILDINGS] = { 0 };
 
 //Camera struct definitions
 Camera2D camera = { 0 };
-camera.target = player1.position;
-camera.offset = (Vector2) { screenWidth/2.0f, screenHeight/2.0f };
-camera.rotation = 0.0f;
-camera.zoom = 1.0f;
 
 //Global Items Legnth condition. You want this global
 
@@ -263,25 +254,7 @@ void UpdateCameraCenterInsideMap(
     int envItemsLength, float delta, int width, int height)
 {
     camera->target = player->position;
-    camera->offest = (Vector2){ width/2.0f, height/2.0f };
-    float minX = 1000, minY = 1000. maxX = -1000, maxY = -1000;
 
-    for (int i = 0; i < envItemsLength; i++)
-    {
-        EnvItem *ei = envItems + i;
-        minX = fminf(ei->rect.x, minX);
-        maxX = fmaxf(ei->rect.x + ei->rect.width, maxX);
-        minY = fminf(ei->rect.y, minY);
-        maxY = fmaxf(ei->rect.y + ei->rect.height, maxY);
-    }
-
-    Vector2 max = GetWorldToScreen2D((Vector2){ maxX, maxY }, *camera);
-    Vector2 min = GetWorldToScreen2D((Vector2){ minX, minY }, *camera);
-
-    if (max.x < width) camera->offset.x = width - (max.x - width/2);
-    if (max.y < height) camera->offset.y = height - (max.y - height/2);
-    if (min.x > 0) camera->offset.x = width/2 - mix.x;
-    if (min.y > 0) camera->offset.y = height/2 - min.y;
 }
 
 void UpdateCameraCenterSmoothFollow(
@@ -293,14 +266,6 @@ void UpdateCameraCenterSmoothFollow(
     static float fractionSpeed = 0.8f;
 
     camera->offset = (Vector2){ width/2.0f, height/2.0f };
-    Vector2 diff = Vector2Subtract{player->position, camera->target};
-
-    if (length > minEffectLength)
-    {
-        float speed = fmaxf(fractionSpeed*length, minSpeed);
-        camera->target = Vector2Add(camera->target, 
-        Vector2Scale(diff, speed*delta/length));
-    }
     
 }
 
@@ -314,40 +279,6 @@ void UpdateCameraOutOnLanding(
 
     camera->offset = (Vector2){ width/2.0f, height/2.0f };
     camera->target.x = player->position.x;
-
-    if (eveningOut)
-    {
-        if (evenOutTraget > camera->target.y)
-        {
-            camera->target.y += evenOutSpeed*delta;
-
-            if (camera->target.y > evenOutTarget)
-            {
-                camera->target.y = evenOutTarget;
-                eveningOut = 0;
-            }
-        }
-        else
-        {
-            camera->target.y -= evenOutSpeed*delta;
-
-            if (camera->target.y < evenOutTarget)
-            {
-                camera->target.y = evenOutTarget;
-                eveningOut = 0;
-            }
-        }
-    }
-    else
-    {
-        if (player->canJump && (player->speed == 0) &&
-            (player->position.y != camera->target.y))
-        {
-            eveningOut = 1;
-            evenOutTarget = player->position.y;
-        }
-        
-    }
     
 }
 
@@ -355,7 +286,7 @@ void UpdateCameraPlayerBoundsPush(
     Camera2D *camera, Player *player, EnvItem *envItems, 
     int envItemsLength, float delta, int width, int height)
 {
-    static Vector2 bbox - { 0.2f, 0.2f };
+    static Vector2 bbox = { 0.2f, 0.2f };
 
     Vector2 bboxWorldMin = GetScreenToWorld2D((Vector2) { 
         (1 - bbox.x)*0.5f*width, (1 - bbox.y)*0.5f*height}, *camera);
@@ -364,14 +295,4 @@ void UpdateCameraPlayerBoundsPush(
     camera->offset = (Vector2){ 
         (1 - bbox.x)*0.5f * width, (1 - bbox.y)*0.5f*height };
     
-    if (player->positition.x < bboxWorldMin.x)
-        camera->target.x = player->position.x;
-    if (player->position.y < bboxWorldMin.x) 
-        camera->target.y = player->position.y;
-    if (player->position.x > bboxWorldMax.x) 
-        camera->target.x = bboxWorldMin.x + (
-            player->position.x - bboxWorldMax.x);
-    if (player->position.y > bboxWorldMax.y) 
-        camera->target.y = bboxWorldMin.y + (
-            player->position.y -bboxWorldMax.y);
 }
