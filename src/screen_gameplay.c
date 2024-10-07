@@ -184,11 +184,15 @@ void DrawGameplayScreen(void)
         if (IsKeyDown(KEY_A))
         {
             truerotation -= 1.0f;
+            if (truerotation < -40.0f) truerotation = -40.0f;
+            
+            
         }
 
         if (IsKeyDown(KEY_S))
         {
             truerotation += 1.0f;
+            if (truerotation > 40.0f) truerotation = 40.0f;
         }
         
         camera.rotation = truerotation;
